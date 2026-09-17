@@ -4,93 +4,316 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#070914" />
-  <meta name="description" content="ClipClash — post gaming clips, climb the leaderboard and discover what is trending." />
+
+  <meta
+    name="description"
+    content="ClipClash — upload gaming clips, climb the leaderboard and discover what is trending."
+  />
+
   <title>ClipClash — Gaming clips, ranked</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
+
   <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    .clip-video {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      display: block;
+      object-fit: cover;
+      background: #000;
+      border-radius: inherit;
+    }
+
+    .upload-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .upload-box small {
+      opacity: 0.65;
+      line-height: 1.4;
+    }
+
+    .upload-box input[type="file"] {
+      cursor: pointer;
+    }
+
+    .clip-cover {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .video-wrap .clip-game {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 4;
+    }
+
+    .video-wrap .clip-rank {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 4;
+    }
+
+    .upload-progress-text {
+      margin-top: 6px;
+      opacity: 0.8;
+      font-size: 13px;
+    }
+  </style>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="config.js"></script>
-<script defer src="js/app.js?v=4"></script></head>
+
+  <!-- version number prevents the browser from using old cached JS -->
+  <script defer src="js/app.js?v=6"></script>
+</head>
+
 <body>
+
   <div class="noise"></div>
   <div class="aurora aurora-a"></div>
   <div class="aurora aurora-b"></div>
 
   <header class="topbar">
-    <a class="brand" href="#" aria-label="ClipClash home">
+
+    <a
+      class="brand"
+      href="#"
+      aria-label="ClipClash home"
+    >
       <span class="brand-mark">CC</span>
       <span>ClipClash</span>
       <span class="beta">BETA</span>
     </a>
 
-    <nav class="nav-tabs" aria-label="Primary">
-      <button class="nav-tab active" data-view="feed">Trending</button>
-      <button class="nav-tab" data-view="latest">Latest</button>
-      <button class="nav-tab auth-only hidden" data-view="profile">My profile</button>
+    <nav
+      class="nav-tabs"
+      aria-label="Primary"
+    >
+      <button
+        class="nav-tab active"
+        data-view="feed"
+      >
+        Trending
+      </button>
+
+      <button
+        class="nav-tab"
+        data-view="latest"
+      >
+        Latest
+      </button>
+
+      <button
+        class="nav-tab auth-only hidden"
+        data-view="profile"
+      >
+        My profile
+      </button>
     </nav>
 
     <div class="nav-actions">
-      <button id="newClipBtn" class="btn btn-ghost auth-only hidden">+ Post clip</button>
-      <button id="authBtn" class="btn btn-primary">Join free</button>
-      <button id="accountBtn" class="avatar-button auth-only hidden" title="Account"></button>
+
+      <button
+        id="newClipBtn"
+        class="btn btn-ghost auth-only hidden"
+      >
+        + Upload clip
+      </button>
+
+      <button
+        id="authBtn"
+        class="btn btn-primary"
+      >
+        Join free
+      </button>
+
+      <button
+        id="accountBtn"
+        class="avatar-button auth-only hidden"
+        title="Account"
+      ></button>
+
     </div>
   </header>
 
+
   <main>
+
     <section class="hero shell">
+
       <div class="hero-copy">
-        <div class="eyebrow"><span class="live-dot"></span> Community-powered gaming feed</div>
-        <h1>Your best clip deserves more than <span>12 views.</span></h1>
-        <p>Drop your gaming clips, climb the daily board, discover underrated creators and build a profile people actually remember.</p>
-        <div class="hero-actions">
-          <button id="heroJoinBtn" class="btn btn-primary btn-lg">Create my account</button>
-          <button id="exploreBtn" class="btn btn-secondary btn-lg">Explore clips</button>
+
+        <div class="eyebrow">
+          <span class="live-dot"></span>
+          Community-powered gaming feed
         </div>
+
+        <h1>
+          Your best clip deserves more than
+          <span>12 views.</span>
+        </h1>
+
+        <p>
+          Upload your own gaming clips, climb the board,
+          discover underrated creators and build a profile
+          people actually remember.
+        </p>
+
+        <div class="hero-actions">
+
+          <button
+            id="heroJoinBtn"
+            class="btn btn-primary btn-lg"
+          >
+            Create my account
+          </button>
+
+          <button
+            id="exploreBtn"
+            class="btn btn-secondary btn-lg"
+          >
+            Explore clips
+          </button>
+
+        </div>
+
         <div class="trust-row">
           <span>✓ Email verification</span>
+          <span>✓ Upload your own videos</span>
           <span>✓ Free accounts</span>
-          <span>✓ No downloads</span>
         </div>
+
       </div>
+
 
       <div class="hero-card glass">
+
         <div class="fake-browser">
-          <div class="browser-dots"><i></i><i></i><i></i></div>
+
+          <div class="browser-dots">
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+
           <span>clipclash / trending</span>
-          <span class="browser-live">LIVE</span>
+
+          <span class="browser-live">
+            LIVE
+          </span>
+
         </div>
+
+
         <div class="spotlight-card">
+
           <div class="spotlight-cover">
-            <div class="game-chip">FORTNITE</div>
-            <div class="play-orb">▶</div>
-            <div class="rank-badge">#1 TODAY</div>
-          </div>
-          <div class="spotlight-meta">
-            <div>
-              <strong>1v3 clutch at 2 HP 🤯</strong>
-              <small>@nova • 8m ago</small>
+
+            <div class="game-chip">
+              FORTNITE
             </div>
-            <div class="like-pill">♥ 1.8K</div>
+
+            <div class="play-orb">
+              ▶
+            </div>
+
+            <div class="rank-badge">
+              #1 TODAY
+            </div>
+
           </div>
+
+          <div class="spotlight-meta">
+
+            <div>
+              <strong>
+                Your clip could be here 👀
+              </strong>
+
+              <small>
+                Upload • Get likes • Rank up
+              </small>
+            </div>
+
+            <div class="like-pill">
+              ♥
+            </div>
+
+          </div>
+
         </div>
+
+
         <div class="mini-stats">
-          <div><strong>24h</strong><span>Daily reset</span></div>
-          <div><strong>+XP</strong><span>Every vote</span></div>
-          <div><strong>∞</strong><span>Games</span></div>
+
+          <div>
+            <strong>24h</strong>
+            <span>Daily board</span>
+          </div>
+
+          <div>
+            <strong>+XP</strong>
+            <span>Every vote</span>
+          </div>
+
+          <div>
+            <strong>∞</strong>
+            <span>Games</span>
+          </div>
+
         </div>
+
       </div>
+
     </section>
 
-    <section class="shell app-section" id="appSection">
+
+    <section
+      class="shell app-section"
+      id="appSection"
+    >
+
       <div class="section-head">
+
         <div>
-          <div class="eyebrow">THE ARENA</div>
-          <h2 id="feedTitle">Trending right now</h2>
+
+          <div class="eyebrow">
+            THE ARENA
+          </div>
+
+          <h2 id="feedTitle">
+            Trending right now
+          </h2>
+
         </div>
+
+
         <div class="filters">
-          <select id="gameFilter" aria-label="Filter by game">
+
+          <select
+            id="gameFilter"
+            aria-label="Filter by game"
+          >
             <option value="">All games</option>
             <option>Fortnite</option>
             <option>Roblox</option>
@@ -100,113 +323,600 @@
             <option>Rocket League</option>
             <option>Other</option>
           </select>
-          <button id="refreshBtn" class="icon-btn" title="Refresh">↻</button>
+
+          <button
+            id="refreshBtn"
+            class="icon-btn"
+            title="Refresh"
+          >
+            ↻
+          </button>
+
         </div>
+
       </div>
 
-      <div id="configWarning" class="config-warning hidden">
-        <strong>Owner setup needed.</strong> Open <code>config.js</code>, add your Supabase URL + publishable key, then run <code>supabase.sql</code> in your Supabase SQL Editor.
+
+      <div
+        id="configWarning"
+        class="config-warning hidden"
+      >
+        <strong>
+          Owner setup needed.
+        </strong>
+
+        Open
+        <code>config.js</code>
+        and connect Supabase.
       </div>
 
-      <div id="feed" class="clip-grid" aria-live="polite"></div>
-      <div id="emptyState" class="empty-state hidden">
-        <div class="empty-icon">⚡</div>
-        <h3>No clips here yet</h3>
-        <p>Be the first person to post something worth watching.</p>
-        <button class="btn btn-primary auth-only hidden" id="emptyPostBtn">Post the first clip</button>
+
+      <div
+        id="feed"
+        class="clip-grid"
+        aria-live="polite"
+      ></div>
+
+
+      <div
+        id="emptyState"
+        class="empty-state hidden"
+      >
+
+        <div class="empty-icon">
+          ⚡
+        </div>
+
+        <h3>
+          No clips here yet
+        </h3>
+
+        <p>
+          Be the first creator to upload something worth watching.
+        </p>
+
+        <button
+          class="btn btn-primary auth-only hidden"
+          id="emptyPostBtn"
+        >
+          Upload the first clip
+        </button>
+
       </div>
-      <div id="loadingState" class="loading-grid hidden">
-        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+
+
+      <div
+        id="loadingState"
+        class="loading-grid hidden"
+      >
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
       </div>
+
     </section>
+
 
     <section class="shell feature-strip">
-      <article class="feature-card"><span>01</span><h3>Post in seconds</h3><p>Paste a YouTube, Twitch, TikTok, Medal or other public clip URL.</p></article>
-      <article class="feature-card"><span>02</span><h3>Get ranked</h3><p>Likes push clips up the board. Fresh clips get a fair shot every day.</p></article>
-      <article class="feature-card"><span>03</span><h3>Build a name</h3><p>Your profile collects your clips, likes and XP in one clean page.</p></article>
+
+      <article class="feature-card">
+
+        <span>01</span>
+
+        <h3>
+          Upload your video
+        </h3>
+
+        <p>
+          Record on your phone or edit on your PC,
+          then upload the finished video directly.
+        </p>
+
+      </article>
+
+
+      <article class="feature-card">
+
+        <span>02</span>
+
+        <h3>
+          Get ranked
+        </h3>
+
+        <p>
+          Likes push clips higher on the board.
+          The best clips battle for #1.
+        </p>
+
+      </article>
+
+
+      <article class="feature-card">
+
+        <span>03</span>
+
+        <h3>
+          Build a name
+        </h3>
+
+        <p>
+          Your profile collects your clips,
+          likes and XP.
+        </p>
+
+      </article>
+
     </section>
+
   </main>
 
+
   <footer class="footer shell">
-    <div><strong>ClipClash</strong> <span>Built for the clip that deserved to blow up.</span></div>
-    <span>Community beta</span>
+
+    <div>
+      <strong>
+        ClipClash
+      </strong>
+
+      <span>
+        Built for the clip that deserved to blow up.
+      </span>
+    </div>
+
+    <span>
+      Community beta
+    </span>
+
   </footer>
 
-  <!-- Auth modal -->
-  <div class="modal-backdrop hidden" id="authModal">
-    <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-      <button class="modal-close" data-close="authModal">×</button>
-      <div class="modal-logo">CC</div>
-      <div class="auth-switch">
-        <button class="active" data-auth-mode="signup">Create account</button>
-        <button data-auth-mode="login">Log in</button>
+
+
+  <!-- AUTH MODAL -->
+
+  <div
+    class="modal-backdrop hidden"
+    id="authModal"
+  >
+
+    <div
+      class="modal auth-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="authTitle"
+    >
+
+      <button
+        class="modal-close"
+        data-close="authModal"
+      >
+        ×
+      </button>
+
+
+      <div class="modal-logo">
+        CC
       </div>
 
-      <form id="signupForm" class="auth-form">
-        <h2 id="authTitle">Claim your creator tag</h2>
-        <p>We’ll send a verification link to your email.</p>
-        <label>Username<input id="signupUsername" autocomplete="username" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" placeholder="nova_clips" required /></label>
-        <label>Display name<input id="signupDisplayName" maxlength="30" placeholder="Nova" required /></label>
-        <label>Email<input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
-        <label>Password<input id="signupPassword" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required /></label>
-        <button class="btn btn-primary btn-full" type="submit">Create account</button>
-        <small class="form-note">By joining, you agree not to post illegal, private, stolen, or harmful content.</small>
+
+      <div class="auth-switch">
+
+        <button
+          class="active"
+          data-auth-mode="signup"
+        >
+          Create account
+        </button>
+
+        <button
+          data-auth-mode="login"
+        >
+          Log in
+        </button>
+
+      </div>
+
+
+      <form
+        id="signupForm"
+        class="auth-form"
+      >
+
+        <h2 id="authTitle">
+          Claim your creator tag
+        </h2>
+
+        <p>
+          We’ll send a verification link to your email.
+        </p>
+
+
+        <label>
+          Username
+
+          <input
+            id="signupUsername"
+            autocomplete="username"
+            maxlength="20"
+            pattern="[A-Za-z0-9_]{3,20}"
+            placeholder="nova_clips"
+            required
+          />
+        </label>
+
+
+        <label>
+          Display name
+
+          <input
+            id="signupDisplayName"
+            maxlength="30"
+            placeholder="Nova"
+            required
+          />
+        </label>
+
+
+        <label>
+          Email
+
+          <input
+            id="signupEmail"
+            type="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          />
+        </label>
+
+
+        <label>
+          Password
+
+          <input
+            id="signupPassword"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="At least 8 characters"
+            required
+          />
+        </label>
+
+
+        <button
+          class="btn btn-primary btn-full"
+          type="submit"
+        >
+          Create account
+        </button>
+
+
+        <small class="form-note">
+          Upload only videos you created
+          or have permission to use.
+        </small>
+
       </form>
 
-      <form id="loginForm" class="auth-form hidden">
-        <h2>Welcome back</h2>
-        <p>Log in and see how your clips are doing.</p>
-        <label>Email<input id="loginEmail" type="email" autocomplete="email" required /></label>
-        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
-        <button class="btn btn-primary btn-full" type="submit">Log in</button>
-        <button id="forgotPasswordBtn" class="text-btn" type="button">Forgot password?</button>
+
+      <form
+        id="loginForm"
+        class="auth-form hidden"
+      >
+
+        <h2>
+          Welcome back
+        </h2>
+
+        <p>
+          Log in and see how your clips are doing.
+        </p>
+
+
+        <label>
+          Email
+
+          <input
+            id="loginEmail"
+            type="email"
+            autocomplete="email"
+            required
+          />
+        </label>
+
+
+        <label>
+          Password
+
+          <input
+            id="loginPassword"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+
+
+        <button
+          class="btn btn-primary btn-full"
+          type="submit"
+        >
+          Log in
+        </button>
+
+
+        <button
+          id="forgotPasswordBtn"
+          class="text-btn"
+          type="button"
+        >
+          Forgot password?
+        </button>
+
       </form>
-      <div id="authMessage" class="form-message hidden"></div>
+
+
+      <div
+        id="authMessage"
+        class="form-message hidden"
+      ></div>
+
     </div>
   </div>
 
-  <!-- Post clip modal -->
-  <div class="modal-backdrop hidden" id="clipModal">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="clipTitle">
-      <button class="modal-close" data-close="clipModal">×</button>
-      <div class="modal-kicker">NEW DROP</div>
-      <h2 id="clipTitle">Post a clip</h2>
-      <form id="clipForm" class="auth-form">
-        <label>Clip title<input id="clipName" maxlength="70" placeholder="That one shot nobody believed 😭" required /></label>
-        <label>Game
-          <select id="clipGame" required>
-            <option value="">Choose game</option><option>Fortnite</option><option>Roblox</option><option>Minecraft</option><option>Valorant</option><option>GTA V</option><option>Rocket League</option><option>Other</option>
+
+
+  <!-- UPLOAD CLIP MODAL -->
+
+  <div
+    class="modal-backdrop hidden"
+    id="clipModal"
+  >
+
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="clipTitle"
+    >
+
+      <button
+        class="modal-close"
+        data-close="clipModal"
+      >
+        ×
+      </button>
+
+
+      <div class="modal-kicker">
+        NEW DROP
+      </div>
+
+
+      <h2 id="clipTitle">
+        Upload a clip
+      </h2>
+
+
+      <form
+        id="clipForm"
+        class="auth-form"
+      >
+
+        <label>
+          Clip title
+
+          <input
+            id="clipName"
+            maxlength="70"
+            placeholder="That one shot nobody believed 😭"
+            required
+          />
+        </label>
+
+
+        <label>
+          Game
+
+          <select
+            id="clipGame"
+            required
+          >
+            <option value="">
+              Choose game
+            </option>
+
+            <option>Fortnite</option>
+            <option>Roblox</option>
+            <option>Minecraft</option>
+            <option>Valorant</option>
+            <option>GTA V</option>
+            <option>Rocket League</option>
+            <option>Other</option>
+
           </select>
         </label>
-        <label>Public clip URL<input id="clipUrl" type="url" maxlength="500" placeholder="https://youtube.com/shorts/..." required /></label>
-        <button class="btn btn-primary btn-full" type="submit">Drop the clip ⚡</button>
+
+
+        <label class="upload-box">
+
+          Video file
+
+          <input
+            id="clipFile"
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime,video/*"
+            required
+          />
+
+          <small>
+            Choose a video from your gallery,
+            computer or phone camera.
+            Maximum size: 100 MB.
+          </small>
+
+        </label>
+
+
+        <button
+          class="btn btn-primary btn-full"
+          type="submit"
+        >
+          Upload the clip ⚡
+        </button>
+
       </form>
-      <div id="clipMessage" class="form-message hidden"></div>
+
+
+      <div
+        id="clipMessage"
+        class="form-message hidden"
+      ></div>
+
     </div>
   </div>
 
-  <!-- Profile modal / account drawer -->
-  <div class="modal-backdrop hidden" id="accountModal">
-    <div class="modal" role="dialog" aria-modal="true">
-      <button class="modal-close" data-close="accountModal">×</button>
+
+
+  <!-- PROFILE MODAL -->
+
+  <div
+    class="modal-backdrop hidden"
+    id="accountModal"
+  >
+
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+    >
+
+      <button
+        class="modal-close"
+        data-close="accountModal"
+      >
+        ×
+      </button>
+
+
       <div class="profile-head">
-        <div id="profileAvatar" class="profile-avatar"></div>
-        <div><div class="modal-kicker">YOUR PROFILE</div><h2 id="profileName">Player</h2><p id="profileHandle">@player</p></div>
+
+        <div
+          id="profileAvatar"
+          class="profile-avatar"
+        ></div>
+
+
+        <div>
+
+          <div class="modal-kicker">
+            YOUR PROFILE
+          </div>
+
+          <h2 id="profileName">
+            Player
+          </h2>
+
+          <p id="profileHandle">
+            @player
+          </p>
+
+        </div>
+
       </div>
+
+
       <div class="profile-stats">
-        <div><strong id="statClips">0</strong><span>Clips</span></div>
-        <div><strong id="statLikes">0</strong><span>Likes</span></div>
-        <div><strong id="statXp">0</strong><span>XP</span></div>
+
+        <div>
+          <strong id="statClips">
+            0
+          </strong>
+
+          <span>
+            Clips
+          </span>
+        </div>
+
+
+        <div>
+          <strong id="statLikes">
+            0
+          </strong>
+
+          <span>
+            Likes
+          </span>
+        </div>
+
+
+        <div>
+          <strong id="statXp">
+            0
+          </strong>
+
+          <span>
+            XP
+          </span>
+        </div>
+
       </div>
-      <form id="profileForm" class="auth-form compact">
-        <label>Display name<input id="profileDisplayName" maxlength="30" required /></label>
-        <label>Bio<textarea id="profileBio" maxlength="140" rows="3" placeholder="Tell people what you play..."></textarea></label>
-        <button class="btn btn-secondary btn-full" type="submit">Save profile</button>
+
+
+      <form
+        id="profileForm"
+        class="auth-form compact"
+      >
+
+        <label>
+          Display name
+
+          <input
+            id="profileDisplayName"
+            maxlength="30"
+            required
+          />
+        </label>
+
+
+        <label>
+          Bio
+
+          <textarea
+            id="profileBio"
+            maxlength="140"
+            rows="3"
+            placeholder="Tell people what you play..."
+          ></textarea>
+        </label>
+
+
+        <button
+          class="btn btn-secondary btn-full"
+          type="submit"
+        >
+          Save profile
+        </button>
+
       </form>
-      <button id="logoutBtn" class="btn btn-danger btn-full">Log out</button>
+
+
+      <button
+        id="logoutBtn"
+        class="btn btn-danger btn-full"
+      >
+        Log out
+      </button>
+
     </div>
   </div>
 
-  <div id="toastHost" class="toast-host" aria-live="polite"></div>
+
+  <div
+    id="toastHost"
+    class="toast-host"
+    aria-live="polite"
+  ></div>
+
 </body>
 </html>
