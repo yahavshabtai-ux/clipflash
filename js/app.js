@@ -27,7 +27,7 @@
     gameFilter: ''
   };
 
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
   const els = {
     authBtn: $('authBtn'),
@@ -57,17 +57,23 @@
   };
 
   function escapeHTML(value = '') {
-    return String(value).replace(/[&<>'"]/g, c => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;'
-    }[c]));
+    return String(value).replace(
+      /[&<>'"]/g,
+      c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[c])
+    );
   }
 
   function initials(value = 'CC') {
-    const parts = value.trim().split(/\s+/).filter(Boolean);
+    const parts = value
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
 
     return (
       parts
@@ -85,17 +91,9 @@
       )
     );
 
-    if (s < 60) {
-      return `${s}s ago`;
-    }
-
-    if (s < 3600) {
-      return `${Math.floor(s / 60)}m ago`;
-    }
-
-    if (s < 86400) {
-      return `${Math.floor(s / 3600)}h ago`;
-    }
+    if (s < 60) return `${s}s ago`;
+    if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
 
     return `${Math.floor(s / 86400)}d ago`;
   }
@@ -114,12 +112,11 @@
           margin-left:5px;
           border-radius:50%;
           background:#1d9bf0;
-          color:#fff;
+          color:white;
           font-size:11px;
           font-weight:900;
           line-height:1;
           vertical-align:-2px;
-          box-shadow:0 0 0 1px rgba(255,255,255,.15);
         "
       >✓</span>
     `;
@@ -243,24 +240,10 @@
         },
         likes: [1, 2, 3],
         clip_url: 'https://www.youtube.com/'
-      },
-      {
-        id: 'demo3',
-        title: 'This should NOT have worked 💀',
-        game: 'Roblox',
-        created_at: new Date(Date.now() - 43 * 60000),
-        profiles: {
-          username: 'pixel',
-          display_name: 'Pixel',
-          verified: false
-        },
-        likes: [1, 2],
-        clip_url: 'https://www.youtube.com/'
       }
     ];
 
     state.clips = demo;
-
     renderFeed();
   }
 
@@ -307,7 +290,7 @@
     let query = supabase
       .from('clips')
       .select(
-        'id,user_id,title,game,clip_url,created_at,profiles(username,display_name,verified),likes(user_id)'
+        'id,user_id,title,game,clip_url,created_at,profiles:profiles!clips_user_id_fkey(username,display_name,verified),likes(user_id)'
       )
       .limit(60);
 
@@ -320,10 +303,15 @@
 
     query = query.order(
       'created_at',
-      { ascending: false }
+      {
+        ascending: false
+      }
     );
 
-    const { data, error } = await query;
+    const {
+      data,
+      error
+    } = await query;
 
     if (els.loadingState) {
       els.loadingState.classList.add('hidden');
@@ -334,10 +322,15 @@
     }
 
     if (error) {
-      console.error(error);
+      console.error('loadClips error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
 
       toast(
-        'Could not load clips. Check Supabase setup.'
+        'Could not load clips. Check console.'
       );
 
       state.clips = [];
@@ -349,12 +342,12 @@
 
       if (state.currentView === 'feed') {
         state.clips.sort((a, b) => {
-          const likeDifference =
+          const likes =
             (b.likes?.length || 0) -
             (a.likes?.length || 0);
 
-          if (likeDifference !== 0) {
-            return likeDifference;
+          if (likes !== 0) {
+            return likes;
           }
 
           return (
@@ -382,12 +375,11 @@
       );
     }
 
-    if (!clips.length) {
-      return;
-    }
+    if (!clips.length) return;
 
     clips.forEach((clip, index) => {
-      const likes = clip.likes || [];
+      const likes =
+        clip.likes || [];
 
       const liked =
         state.user &&
@@ -414,37 +406,20 @@
           ? `
             <button
               type="button"
-              data-verify-user="${escapeHTML(
-                clip.user_id
-              )}"
-              data-verified="${
-                creator.verified
-                  ? '1'
-                  : '0'
-              }"
-              title="${
-                creator.verified
-                  ? 'Remove verification'
-                  : 'Verify this user'
-              }"
+              data-verify-user="${escapeHTML(clip.user_id)}"
+              data-verified="${creator.verified ? '1' : '0'}"
               style="
-                margin-top:5px;
-                padding:4px 8px;
-                border:1px solid rgba(255,255,255,.14);
+                margin-top:6px;
+                padding:5px 9px;
+                border:1px solid rgba(255,255,255,.15);
                 border-radius:8px;
-                background:rgba(255,255,255,.06);
-                color:inherit;
+                background:rgba(255,255,255,.08);
+                color:white;
                 cursor:pointer;
-                font:inherit;
-                font-size:12px;
                 font-weight:800;
               "
             >
-              ${
-                creator.verified
-                  ? 'Remove V'
-                  : 'Give V'
-              }
+              ${creator.verified ? 'Remove V' : 'Give V'}
             </button>
           `
           : '';
@@ -452,26 +427,18 @@
       card.innerHTML = `
         <a
           class="clip-cover"
-          data-game="${escapeHTML(
-            clip.game
-          )}"
-          href="${escapeHTML(
-            clip.clip_url
-          )}"
+          data-game="${escapeHTML(clip.game)}"
+          href="${escapeHTML(clip.clip_url)}"
           target="_blank"
           rel="noopener noreferrer"
         >
           <span class="clip-game">
-            ${escapeHTML(
-              clip.game
-            ).toUpperCase()}
+            ${escapeHTML(clip.game).toUpperCase()}
           </span>
 
           ${
             state.currentView === 'feed'
-              ? `<span class="clip-rank">#${
-                  index + 1
-                }</span>`
+              ? `<span class="clip-rank">#${index + 1}</span>`
               : ''
           }
 
@@ -483,16 +450,13 @@
         <div class="clip-body">
           <h3
             class="clip-title"
-            title="${escapeHTML(
-              clip.title
-            )}"
+            title="${escapeHTML(clip.title)}"
           >
-            ${escapeHTML(
-              clip.title
-            )}
+            ${escapeHTML(clip.title)}
           </h3>
 
           <div class="clip-bottom">
+
             <div class="creator">
 
               <div class="creator-avatar">
@@ -521,9 +485,7 @@
                 </strong>
 
                 <span>
-                  ${relativeTime(
-                    clip.created_at
-                  )}
+                  ${relativeTime(clip.created_at)}
                 </span>
 
                 ${adminButton}
@@ -541,6 +503,7 @@
             >
               ♥ ${likes.length}
             </button>
+
           </div>
         </div>
       `;
@@ -549,12 +512,10 @@
     });
   }
 
-  async function toggleLike(
-    clipId
-  ) {
+  async function toggleLike(clipId) {
     if (!configured) {
       toast(
-        'Connect Supabase first to enable real accounts and likes.'
+        'Connect Supabase first.'
       );
       return;
     }
@@ -646,9 +607,7 @@
       return;
     }
 
-    if (!userId) {
-      return;
-    }
+    if (!userId) return;
 
     const { error } =
       await supabase.rpc(
@@ -681,11 +640,11 @@
     await loadClips();
   }
 
-  function openAuth(
-    mode = 'signup'
-  ) {
-    if (!configured &&
-        els.configWarning) {
+  function openAuth(mode = 'signup') {
+    if (
+      !configured &&
+      els.configWarning
+    ) {
       els.configWarning.classList.remove(
         'hidden'
       );
@@ -735,31 +694,23 @@
     if (!configured) {
       setMessage(
         els.authMessage,
-        'Owner must connect Supabase first. See README.md.',
+        'Owner must connect Supabase first.',
         'error'
       );
-
       return;
     }
 
     const username =
-      $('signupUsername')
-        ?.value
-        .trim() || '';
+      $('signupUsername')?.value.trim() || '';
 
     const displayName =
-      $('signupDisplayName')
-        ?.value
-        .trim() || '';
+      $('signupDisplayName')?.value.trim() || '';
 
     const email =
-      $('signupEmail')
-        ?.value
-        .trim() || '';
+      $('signupEmail')?.value.trim() || '';
 
     const password =
-      $('signupPassword')
-        ?.value || '';
+      $('signupPassword')?.value || '';
 
     if (
       !/^[A-Za-z0-9_]{3,20}$/.test(
@@ -776,7 +727,7 @@
 
     const {
       data: existing,
-      error: usernameCheckError
+      error: usernameError
     } = await supabase
       .from('profiles')
       .select('id')
@@ -786,9 +737,9 @@
       )
       .limit(1);
 
-    if (usernameCheckError) {
+    if (usernameError) {
       console.warn(
-        usernameCheckError
+        usernameError
       );
     }
 
@@ -797,7 +748,6 @@
         els.authMessage,
         'That username is already taken.'
       );
-
       return;
     }
 
@@ -807,28 +757,28 @@
     const {
       data,
       error
-    } = await supabase
-      .auth
-      .signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo:
-            redirect,
-          data: {
-            username,
-            display_name:
-              displayName
-          }
+    } = await supabase.auth.signUp({
+      email,
+      password,
+
+      options: {
+        emailRedirectTo:
+          redirect,
+
+        data: {
+          username,
+
+          display_name:
+            displayName
         }
-      });
+      }
+    });
 
     if (error) {
       setMessage(
         els.authMessage,
         error.message
       );
-
       return;
     }
 
@@ -862,35 +812,28 @@
     if (!configured) {
       setMessage(
         els.authMessage,
-        'Owner must connect Supabase first. See README.md.'
+        'Owner must connect Supabase first.'
       );
-
       return;
     }
 
     const email =
-      $('loginEmail')
-        ?.value
-        .trim() || '';
+      $('loginEmail')?.value.trim() || '';
 
     const password =
-      $('loginPassword')
-        ?.value || '';
+      $('loginPassword')?.value || '';
 
     const { error } =
-      await supabase
-        .auth
-        .signInWithPassword({
-          email,
-          password
-        });
+      await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
     if (error) {
       setMessage(
         els.authMessage,
         error.message
       );
-
       return;
     }
 
@@ -912,16 +855,13 @@
     }
 
     const email =
-      $('loginEmail')
-        ?.value
-        .trim() || '';
+      $('loginEmail')?.value.trim() || '';
 
     if (!email) {
       setMessage(
         els.authMessage,
         'Enter your email first.'
       );
-
       return;
     }
 
@@ -929,21 +869,18 @@
       `${window.location.origin}${window.location.pathname}`;
 
     const { error } =
-      await supabase
-        .auth
-        .resetPasswordForEmail(
-          email,
-          {
-            redirectTo
-          }
-        );
+      await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo
+        }
+      );
 
     if (error) {
       setMessage(
         els.authMessage,
         error.message
       );
-
       return;
     }
 
@@ -969,17 +906,15 @@
     const payload = {
       user_id:
         state.user.id,
+
       title:
-        $('clipName')
-          ?.value
-          .trim() || '',
+        $('clipName')?.value.trim() || '',
+
       game:
-        $('clipGame')
-          ?.value || '',
+        $('clipGame')?.value || '',
+
       clip_url:
-        $('clipUrl')
-          ?.value
-          .trim() || ''
+        $('clipUrl')?.value.trim() || ''
     };
 
     const { error } =
@@ -992,7 +927,6 @@
         els.clipMessage,
         error.message
       );
-
       return;
     }
 
@@ -1010,9 +944,7 @@
   }
 
   async function openAccount() {
-    if (!state.user) {
-      return;
-    }
+    if (!state.user) return;
 
     await loadProfile();
 
@@ -1061,6 +993,7 @@
         { count: clipCount },
         { data: ownClips }
       ] = await Promise.all([
+
         supabase
           .from('clips')
           .select(
@@ -1084,6 +1017,7 @@
             'user_id',
             state.user.id
           )
+
       ]);
 
       const likes =
@@ -1130,23 +1064,15 @@
       return;
     }
 
-    const displayName =
-      $('profileDisplayName')
-        ?.value
-        .trim() || '';
-
-    const bio =
-      $('profileBio')
-        ?.value
-        .trim() || '';
-
     const { error } =
       await supabase
         .from('profiles')
         .update({
           display_name:
-            displayName,
-          bio
+            $('profileDisplayName')?.value.trim() || '',
+
+          bio:
+            $('profileBio')?.value.trim() || ''
         })
         .eq(
           'id',
@@ -1157,7 +1083,6 @@
       toast(
         error.message
       );
-
       return;
     }
 
@@ -1173,9 +1098,7 @@
   }
 
   async function logout() {
-    if (!supabase) {
-      return;
-    }
+    if (!supabase) return;
 
     await supabase.auth.signOut();
 
@@ -1202,9 +1125,7 @@
     }
 
     document
-      .querySelectorAll(
-        '.nav-tab'
-      )
+      .querySelectorAll('.nav-tab')
       .forEach(b => {
         b.classList.toggle(
           'active',
@@ -1225,6 +1146,7 @@
   document.addEventListener(
     'click',
     e => {
+
       const close =
         e.target.closest(
           '[data-close]'
@@ -1266,8 +1188,7 @@
       if (verify) {
         toggleVerification(
           verify.dataset.verifyUser,
-          verify.dataset.verified ===
-            '1'
+          verify.dataset.verified === '1'
         );
       }
 
@@ -1314,15 +1235,9 @@
     els.heroJoinBtn.addEventListener(
       'click',
       () => {
-        if (state.user) {
-          showModal(
-            els.clipModal
-          );
-        } else {
-          openAuth(
-            'signup'
-          );
-        }
+        state.user
+          ? showModal(els.clipModal)
+          : openAuth('signup');
       }
     );
   }
@@ -1333,8 +1248,7 @@
       () => {
         $('appSection')
           ?.scrollIntoView({
-            behavior:
-              'smooth'
+            behavior: 'smooth'
           });
       }
     );
@@ -1355,15 +1269,9 @@
     els.emptyPostBtn.addEventListener(
       'click',
       () => {
-        if (state.user) {
-          showModal(
-            els.clipModal
-          );
-        } else {
-          openAuth(
-            'signup'
-          );
-        }
+        state.user
+          ? showModal(els.clipModal)
+          : openAuth('signup');
       }
     );
   }
@@ -1445,15 +1353,15 @@
       }
 
       updateAuthUI();
-
       renderDemo();
-
       return;
     }
 
     try {
-      const { data, error } =
-        await supabase.auth.getSession();
+      const {
+        data,
+        error
+      } = await supabase.auth.getSession();
 
       if (error) {
         console.error(
@@ -1469,7 +1377,6 @@
         null;
 
       await loadProfile();
-
       await loadClips();
 
       supabase.auth.onAuthStateChange(
@@ -1491,6 +1398,7 @@
           await loadClips();
         }
       );
+
     } catch (error) {
       console.error(
         'ClipClash init error:',
